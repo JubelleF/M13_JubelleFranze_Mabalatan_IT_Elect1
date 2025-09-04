@@ -1,0 +1,7 @@
+
+.char {
+  display: inline-block;
+  will-change: contents;
+  font-family: monospace;
+  font-size: 1.5rem;
+}
