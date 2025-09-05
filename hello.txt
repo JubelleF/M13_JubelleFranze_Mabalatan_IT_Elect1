@@ -1,1 +1,2 @@
  Hello, Github! 
+Nice Day , Today it's Sunny.
