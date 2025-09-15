@@ -27,7 +27,7 @@ const CommentSection = () => {
     },
     {
       id: 2,
-      user: 'Carl Romanda',
+      user: 'Angelo Vallejos',
       text: 'The lyrics are so meaningful. Really connects with what I\'m going through right now.',
       time: '5 hours ago',
       avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
@@ -73,8 +73,6 @@ const CommentSection = () => {
   const formatLikes = (count) => {
     if (count < 1000) return count;
     return `${(count / 1000).toFixed(1)}k`;
-    if (count < 1000000) return count;
-    return `${(count/1000000).toFixed(1)}m`;
   };
 
   return (
