@@ -1,16 +1,14 @@
 import React from 'react';
 import { SafeAreaView, Text, StyleSheet } from 'react-native';
 
-import ColorChangerApp from './ColorChangerApp'
-import CounterApp from './CounterApp'
-import MySubscribeButton from './MySubscribeButton'
+import ChatScreen from './ChatScreen'
+import CommentSection from './CommentSection'
 
 const SafeAreaComponent = () => {
   return (
     <SafeAreaView style={styles.container}>
-    <CounterApp />
-    <MySubscribeButton />
-    <ColorChangerApp />
+    <ChatScreen />
+    <CommentSection />
     </SafeAreaView>
   );
 };
