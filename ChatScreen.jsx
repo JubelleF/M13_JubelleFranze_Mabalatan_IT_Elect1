@@ -16,7 +16,7 @@ export default function ChatScreen() {
   
   const [messages, setMessages] = useState([
     { id: "1", text: "Hey! Naa tay Assignment?", sender: "Jaymark"},
-    { id: "2", text: "Wala ko kabalo, Try to ask the another classmate!", sender: "JubelleFranze" },
+    { id: "2", text: "Wala ko kabalo, Try to ask the another classmate!", sender: "JubelleFranze"},
   ]);
   const [input, setInput] = useState("");
 
@@ -51,7 +51,7 @@ export default function ChatScreen() {
         item.sender === "JubelleFranze" ? styles.myTimestamp : styles.otherTimestamp,
       ]}
     >
-      {item.timestamp}{" "}{item.sender}
+      {item.timestamp}{item.sender}
     </Text>
   </View>
 );
