@@ -20,8 +20,6 @@ export default function App() {
       >
         <View style={styles.content}>
           <Text style={styles.title}>Hi to React Native</Text>
-          <Text style={styles.subtitle}>Edit App.js to start building your app!</Text>
-
           <Image source={require('./Pics/jubellefranze.jpg')} style={styles.image} />
 
           <TextInput
@@ -32,6 +30,16 @@ export default function App() {
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your Age"
+            placeholderTextColor="#999"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your address"
             placeholderTextColor="#999"
           />
         </View>
