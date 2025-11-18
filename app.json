@@ -1,29 +1,40 @@
 {
   "expo": {
-    "name": "JubelleFranze",
-    "slug": "JubelleFranze",
+    "name": "jubellefranze",
+    "slug": "jubellefranze",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "icon": "./assets/jubellefranze.jpg",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#007AFF"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jubelle.franze"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/jubellefranze.jpg",
+        "backgroundColor": "#FFFFFF"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.jubelle.franze"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/jubellefranze.jpg"
+    },
+    "plugins": [
+      "expo-sqlite"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "401e16b6-cd2c-4eed-8457-6b3abbcf38cb"
+      }
     }
   }
 }
