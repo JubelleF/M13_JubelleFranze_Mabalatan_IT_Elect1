@@ -7,10 +7,10 @@
     "userInterfaceStyle": "light",
     "icon": "./assets/jubellefranze.jpg",
     "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#007AFF"
-    },
+  "image": "./assets/jubellefranze.jpg",
+  "resizeMode": "contain",
+  "backgroundColor": "#ffffff"
+},
     "assetBundlePatterns": [
       "**/*"
     ],
