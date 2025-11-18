@@ -14,10 +14,6 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.jubelle.franze"
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/jubellefranze.jpg",
