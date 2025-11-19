@@ -1,3 +1,4 @@
+//LoginScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -10,7 +11,6 @@ import {
   Platform,
   ActivityIndicator,
   StatusBar,
-  Animated,
 } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 
@@ -19,6 +19,7 @@ export default function LoginScreen({ onLogin, onNavigateToRegister }) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // 👁️ Added
   const db = useSQLiteContext();
 
   const handleLogin = async () => {
@@ -70,6 +71,7 @@ export default function LoginScreen({ onLogin, onNavigateToRegister }) {
         </View>
 
         <View style={styles.form}>
+          {/* USERNAME */}
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Username</Text>
             <View style={[
@@ -92,6 +94,7 @@ export default function LoginScreen({ onLogin, onNavigateToRegister }) {
             </View>
           </View>
 
+          {/* PASSWORD */}
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Password</Text>
             <View style={[
@@ -99,6 +102,7 @@ export default function LoginScreen({ onLogin, onNavigateToRegister }) {
               focusedField === 'password' && styles.inputContainerFocused
             ]}>
               <Text style={styles.inputIcon}>🔒</Text>
+
               <TextInput
                 style={styles.input}
                 placeholder="Enter your password"
@@ -107,12 +111,20 @@ export default function LoginScreen({ onLogin, onNavigateToRegister }) {
                 onChangeText={setPassword}
                 onFocus={() => setFocusedField('password')}
                 onBlur={() => setFocusedField(null)}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 editable={!isLoading}
               />
+
+              {/* 👁️ Eye Icon Toggle */}
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Text style={styles.eyeIcon}>
+                  {showPassword ? "👁️" : "🙈"}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
+          {/* LOGIN BUTTON */}
           <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
             onPress={handleLogin}
@@ -124,7 +136,6 @@ export default function LoginScreen({ onLogin, onNavigateToRegister }) {
             ) : (
               <>
                 <Text style={styles.buttonText}>Sign In</Text>
-                <Text style={styles.buttonArrow}></Text>
               </>
             )}
           </TouchableOpacity>
@@ -190,7 +201,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    letterSpacing: 0.5,
     marginBottom: 8,
   },
   subtitle: {
@@ -222,7 +232,6 @@ const styles = StyleSheet.create({
   },
   inputContainerFocused: {
     borderColor: '#0A84FF',
-    backgroundColor: '#1C1C1E',
   },
   inputIcon: {
     fontSize: 20,
@@ -234,6 +243,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     padding: 0,
   },
+  eyeIcon: {
+    fontSize: 20,
+    marginLeft: 12,
+  },
   button: {
     backgroundColor: '#0A84FF',
     height: 54,
@@ -242,27 +255,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 8,
-    shadowColor: '#0A84FF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
     elevation: 4,
   },
   buttonDisabled: {
     backgroundColor: '#2C2C2E',
-    shadowOpacity: 0,
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '600',
-    letterSpacing: 0.3,
-  },
-  buttonArrow: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    marginLeft: 8,
-    fontWeight: 'bold',
   },
   divider: {
     flexDirection: 'row',
@@ -293,7 +294,6 @@ const styles = StyleSheet.create({
     color: '#0A84FF',
     fontSize: 17,
     fontWeight: '600',
-    letterSpacing: 0.3,
   },
   footer: {
     marginTop: 24,
@@ -302,7 +302,6 @@ const styles = StyleSheet.create({
   footerText: {
     color: '#8E8E93',
     fontSize: 14,
-    textAlign: 'center',
   },
   footerBold: {
     color: '#FFFFFF',

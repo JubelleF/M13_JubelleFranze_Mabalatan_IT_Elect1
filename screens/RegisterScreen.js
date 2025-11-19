@@ -24,6 +24,10 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
     confirmPassword: '',
     profilePhoto: null,
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const db = useSQLiteContext();
@@ -44,7 +48,6 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
   const pickImageFromGallery = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      
       if (permission.status !== 'granted') {
         Alert.alert('Permission Required', 'Please grant access to your photo library');
         return;
@@ -69,7 +72,6 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
   const takeSelfie = async () => {
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
-      
       if (permission.status !== 'granted') {
         Alert.alert('Permission Required', 'Please grant camera access');
         return;
@@ -91,7 +93,6 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
   };
 
   const handleRegister = async () => {
-    // Validation
     if (!formData.fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -119,7 +120,6 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
 
     setIsLoading(true);
     try {
-      // Check if username exists
       const existingUser = await db.getFirstAsync(
         'SELECT id FROM users WHERE LOWER(username) = LOWER(?)',
         [formData.username.trim()]
@@ -131,7 +131,6 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
         return;
       }
 
-      // Insert new user
       const result = await db.runAsync(
         'INSERT INTO users (username, password, fullName, profilePhoto) VALUES (?, ?, ?, ?)',
         [
@@ -141,8 +140,6 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
           formData.profilePhoto,
         ]
       );
-
-      console.log('User registered successfully:', result.lastInsertRowId);
 
       Alert.alert(
         'Success',
@@ -167,28 +164,29 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
       style={styles.container}
     >
       <StatusBar barStyle="light-content" />
-      <ScrollView 
+
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
+
           <View style={styles.header}>
             <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>Join the conversation</Text>
           </View>
 
-          {/* Profile Photo Section */}
           <View style={styles.photoSection}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.photoContainer}
               onPress={pickImageFromGallery}
               disabled={isLoading}
               activeOpacity={0.8}
             >
               {formData.profilePhoto ? (
-                <Image 
-                  source={{ uri: formData.profilePhoto }} 
+                <Image
+                  source={{ uri: formData.profilePhoto }}
                   style={styles.profilePhoto}
                 />
               ) : (
@@ -197,6 +195,7 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
                   <Text style={styles.photoPlaceholderText}>Add Photo</Text>
                 </View>
               )}
+
               {formData.profilePhoto && (
                 <View style={styles.editBadge}>
                   <Text style={styles.editBadgeText}>✎</Text>
@@ -205,8 +204,8 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
             </TouchableOpacity>
 
             <View style={styles.photoButtons}>
-              <TouchableOpacity 
-                style={styles.photoButton} 
+              <TouchableOpacity
+                style={styles.photoButton}
                 onPress={pickImageFromGallery}
                 disabled={isLoading}
                 activeOpacity={0.7}
@@ -215,8 +214,8 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
                 <Text style={styles.photoButtonText}>Gallery</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.photoButton} 
+              <TouchableOpacity
+                style={styles.photoButton}
                 onPress={takeSelfie}
                 disabled={isLoading}
                 activeOpacity={0.7}
@@ -227,8 +226,8 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
             </View>
           </View>
 
-          {/* Form Fields */}
           <View style={styles.formSection}>
+            {/* Full Name */}
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Full Name</Text>
               <TextInput
@@ -246,6 +245,7 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
               />
             </View>
 
+            {/* Username */}
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Username</Text>
               <TextInput
@@ -265,40 +265,64 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
               />
             </View>
 
+            {/* Password */}
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Password</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  focusedField === 'password' && styles.inputFocused
-                ]}
-                placeholder="••••••••"
-                placeholderTextColor="#666"
-                value={formData.password}
-                onChangeText={(text) => updateForm('password', text)}
-                onFocus={() => setFocusedField('password')}
-                onBlur={() => setFocusedField(null)}
-                secureTextEntry
-                editable={!isLoading}
-              />
+
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.passwordInput,
+                    focusedField === 'password' && styles.inputFocused
+                  ]}
+                  placeholder="••••••••"
+                  placeholderTextColor="#666"
+                  value={formData.password}
+                  onChangeText={(text) => updateForm('password', text)}
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => setFocusedField(null)}
+                  secureTextEntry={!showPassword}
+                  editable={!isLoading}
+                />
+
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '🙈'}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
+            {/* Confirm Password */}
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Confirm Password</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  focusedField === 'confirmPassword' && styles.inputFocused
-                ]}
-                placeholder="••••••••"
-                placeholderTextColor="#666"
-                value={formData.confirmPassword}
-                onChangeText={(text) => updateForm('confirmPassword', text)}
-                onFocus={() => setFocusedField('confirmPassword')}
-                onBlur={() => setFocusedField(null)}
-                secureTextEntry
-                editable={!isLoading}
-              />
+
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.passwordInput,
+                    focusedField === 'confirmPassword' && styles.inputFocused
+                  ]}
+                  placeholder="••••••••"
+                  placeholderTextColor="#666"
+                  value={formData.confirmPassword}
+                  onChangeText={(text) => updateForm('confirmPassword', text)}
+                  onFocus={() => setFocusedField('confirmPassword')}
+                  onBlur={() => setFocusedField(null)}
+                  secureTextEntry={!showConfirmPassword}
+                  editable={!isLoading}
+                />
+
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Text style={styles.eyeIcon}>{showConfirmPassword ? '👁️' : '🙈'}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
 
@@ -331,6 +355,7 @@ export default function RegisterScreen({ onRegisterSuccess, onNavigateToLogin })
               Already have an account? <Text style={styles.linkBold}>Sign In</Text>
             </Text>
           </TouchableOpacity>
+
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -358,7 +383,6 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    letterSpacing: 0.5,
     marginBottom: 8,
   },
   subtitle: {
@@ -464,8 +488,28 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderColor: '#0A84FF',
-    backgroundColor: '#1C1C1E',
   },
+
+  /* Password visibility section */
+  passwordContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  passwordInput: {
+    paddingRight: 48,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 12,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyeIcon: {
+    fontSize: 22,
+    color: '#FFFFFF',
+  },
+
   button: {
     backgroundColor: '#0A84FF',
     height: 54,

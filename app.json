@@ -1,25 +1,26 @@
 {
   "expo": {
-    "name": "jubellefranze",
+    "name": "Mabalatan_JF",
     "slug": "jubellefranze",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/jubellefranze.jpg",
     "splash": {
-  "image": "./assets/jubellefranze.jpg",
-  "resizeMode": "contain",
-  "backgroundColor": "#ffffff"
-},
+      "image": "./assets/jubellefranze.jpg",
+      "resizeMode": "contain",
+      "backgroundColor": "#9333ea"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/jubellefranze.jpg",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#9333ea"
       },
-      "package": "com.jubelle.franze"
+      "package": "com.mabalatan.jf",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/jubellefranze.jpg"
