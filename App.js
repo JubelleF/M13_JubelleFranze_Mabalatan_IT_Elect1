@@ -1,3 +1,4 @@
+//App.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -60,13 +61,10 @@ function InfoScreen({ onBack }) {
             </View>
 
             <View style={styles.infoCard}>
-              <Text style={styles.infoCardTitle}>📝 Bio</Text>
+              <Text style={styles.infoCardTitle}>Bio</Text>
               <Text style={styles.infoCardText}>
                 Hi! I'm Jubelle Franze, a passionate developer who loves creating
-                beautiful and functional mobile applications. I enjoy learning new
-                technologies and bringing creative ideas to life through code. This
-                project represents my dedication to mobile development and my journey
-                in mastering React Native!</Text>
+                beautiful and functional mobile applications.</Text>
             </View>
 
             <View style={styles.infoCard}>
@@ -185,7 +183,7 @@ function AppContent() {
               style={styles.topInfoButton}
               onPress={() => setShowInfo(true)}
             >
-              <Text style={styles.topInfoButtonText}>ℹ️ Info</Text>
+              <Text style={styles.topInfoButtonText}>ℹ️</Text>
             </TouchableOpacity>
           </View>
           <LoginScreen
@@ -203,7 +201,7 @@ function AppContent() {
               style={styles.topInfoButton}
               onPress={() => setShowInfo(true)}
             >
-              <Text style={styles.topInfoButtonText}>ℹ️ Info</Text>
+              <Text style={styles.topInfoButtonText}>ℹ️</Text>
             </TouchableOpacity>
           </View>
           <RegisterScreen
@@ -215,40 +213,20 @@ function AppContent() {
 
     case 'home':
       return (
-        <View style={styles.container}>
-          <View style={styles.infoButtonContainer}>
-            <TouchableOpacity
-              style={styles.topInfoButton}
-              onPress={() => setShowInfo(true)}
-            >
-              <Text style={styles.topInfoButtonText}>ℹ️ Info</Text>
-            </TouchableOpacity>
-          </View>
-          <HomeScreen
-            currentUser={currentUser}
-            onLogout={handleLogout}
-            onOpenChat={handleOpenChat}
-          />
-        </View>
+        <HomeScreen
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onOpenChat={handleOpenChat}
+        />
       );
 
     case 'chat':
       return (
-        <View style={styles.container}>
-          <View style={styles.infoButtonContainer}>
-            <TouchableOpacity
-              style={styles.topInfoButton}
-              onPress={() => setShowInfo(true)}
-            >
-              <Text style={styles.topInfoButtonText}>ℹ️ Info</Text>
-            </TouchableOpacity>
-          </View>
-          <ChatScreen
-            currentUser={currentUser}
-            chatUser={selectedChatUser}
-            onBack={handleBackToHome}
-          />
-        </View>
+        <ChatScreen
+          currentUser={currentUser}
+          chatUser={selectedChatUser}
+          onBack={handleBackToHome}
+        />
       );
 
     default:

@@ -32,6 +32,9 @@
       "eas": {
         "projectId": "401e16b6-cd2c-4eed-8457-6b3abbcf38cb"
       }
+    },
+    "ios": {
+      "bundleIdentifier": "com.mabalatan.jf"
     }
   }
 }
