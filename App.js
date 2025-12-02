@@ -1,4 +1,4 @@
-// App.js - React Native Mobile Version
+// App.js
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -10,9 +10,11 @@ import {
   Alert,
   SafeAreaView,
   StatusBar,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Shield, LogOut, Users, Ban, Trash2, CheckCircle, AlertCircle } from 'lucide-react-native';
+import { Shield, LogOut, Users, Ban, Trash2, CheckCircle, AlertCircle, Eye, EyeOff, Gamepad2, Settings } from 'lucide-react-native';
 
 // Mock Authentication System
 const mockAuth = {
@@ -20,11 +22,16 @@ const mockAuth = {
   users: [],
   
   async signUp(email, password, username) {
+    // List of admin emails
+    const adminEmails = [
+      'jubellefranze1907@gmail.com'
+    ];
+    
     const user = {
       id: Date.now().toString(),
       email,
       username,
-      role: email.includes('admin') ? 'admin' : 'player',
+      role: adminEmails.includes(email.toLowerCase()) ? 'admin' : 'player',
       status: 'active',
       createdAt: new Date().toISOString(),
       stats: { wins: 0, totalDamage: 0, gamesPlayed: 0 }
@@ -56,6 +63,10 @@ const mockAuth = {
     if (user) {
       user.status = status;
       await AsyncStorage.setItem('tower_game_users', JSON.stringify(this.users));
+      if (this.currentUser && this.currentUser.id === userId) {
+        this.currentUser.status = status;
+        await AsyncStorage.setItem('tower_game_current', JSON.stringify(this.currentUser));
+      }
     }
   },
   
@@ -130,6 +141,7 @@ export default function TowerDefenseGame() {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [towerHP, setTowerHP] = useState(525);
@@ -142,12 +154,18 @@ export default function TowerDefenseGame() {
   useEffect(() => {
     initApp();
   }, []);
+  //add*
+useEffect(() => {
+  if (screen === 'admin') {
+    loadUsers();
+  }
+}, [screen]);
 
   const initApp = async () => {
     await mockAuth.init();
     if (mockAuth.currentUser) {
       setUser(mockAuth.currentUser);
-      setScreen(mockAuth.currentUser.role === 'admin' ? 'admin' : 'menu');
+      setScreen('menu'); // Always start at menu for both admin and player
     }
   };
 
@@ -165,7 +183,7 @@ export default function TowerDefenseGame() {
         userData = await mockAuth.signIn(email, password);
       }
       setUser(userData);
-      setScreen(userData.role === 'admin' ? 'admin' : 'menu');
+      setScreen('menu');
     } catch (err) {
       setError(err.message);
     }
@@ -180,7 +198,12 @@ export default function TowerDefenseGame() {
     setUsername('');
   };
 
-  const loadUsers = () => {
+  const loadUsers = async () => {
+    // Reload users from storage to get the latest data
+    const storedUsers = await AsyncStorage.getItem('tower_game_users');
+    if (storedUsers) {
+      mockAuth.users = JSON.parse(storedUsers);
+    }
     setAllUsers(mockAuth.getAllUsers());
   };
 
@@ -239,163 +262,197 @@ export default function TowerDefenseGame() {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" />
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.authContainer}>
-            <Shield color="#fbbf24" size={64} style={styles.logo} />
-            <Text style={styles.title}>Tower Defense</Text>
-            <Text style={styles.subtitle}>Destroy the tower and claim victory!</Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <ScrollView 
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.authContainer}>
+              <Shield color="#fbbf24" size={64} style={styles.logo} />
+              <Text style={styles.title}>Tower Defense</Text>
+              <Text style={styles.subtitle}>Destroy the tower and claim victory!</Text>
 
-            <View style={styles.tabContainer}>
-              <TouchableOpacity
-                onPress={() => setAuthMode('signin')}
-                style={[styles.tab, authMode === 'signin' && styles.tabActive]}
-              >
-                <Text style={[styles.tabText, authMode === 'signin' && styles.tabTextActive]}>
-                  Sign In
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setAuthMode('signup')}
-                style={[styles.tab, authMode === 'signup' && styles.tabActive]}
-              >
-                <Text style={[styles.tabText, authMode === 'signup' && styles.tabTextActive]}>
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
-            </View>
+              <View style={styles.tabContainer}>
+                <TouchableOpacity
+                  onPress={() => setAuthMode('signin')}
+                  style={[styles.tab, authMode === 'signin' && styles.tabActive]}
+                >
+                  <Text style={[styles.tabText, authMode === 'signin' && styles.tabTextActive]}>
+                    Sign In
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setAuthMode('signup')}
+                  style={[styles.tab, authMode === 'signup' && styles.tabActive]}
+                >
+                  <Text style={[styles.tabText, authMode === 'signup' && styles.tabTextActive]}>
+                    Sign Up
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-            {authMode === 'signup' && (
+              {authMode === 'signup' && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Username"
+                  placeholderTextColor="#9ca3af"
+                  value={username}
+                  onChangeText={setUsername}
+                />
+              )}
+              
               <TextInput
                 style={styles.input}
-                placeholder="Username"
+                placeholder="Email"
                 placeholderTextColor="#9ca3af"
-                value={username}
-                onChangeText={setUsername}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
               />
-            )}
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#9ca3af"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#9ca3af"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-
-            {error ? (
-              <View style={styles.errorContainer}>
-                <AlertCircle color="#fca5a5" size={20} />
-                <Text style={styles.errorText}>{error}</Text>
+              
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Password"
+                  placeholderTextColor="#9ca3af"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity 
+                  style={styles.eyeButton}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff color="#9ca3af" size={22} />
+                  ) : (
+                    <Eye color="#9ca3af" size={22} />
+                  )}
+                </TouchableOpacity>
               </View>
-            ) : null}
 
-            <TouchableOpacity style={styles.authButton} onPress={handleAuth}>
-              <Text style={styles.authButtonText}>
-                {authMode === 'signin' ? 'Sign In' : 'Create Account'}
+              {error ? (
+                <View style={styles.errorContainer}>
+                  <AlertCircle color="#fca5a5" size={20} />
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              ) : null}
+
+              <TouchableOpacity style={styles.authButton} onPress={handleAuth}>
+                <Text style={styles.authButtonText}>
+                  {authMode === 'signin' ? 'Sign In' : 'Create Account'}
+                </Text>
+              </TouchableOpacity>
+
+              <Text style={styles.tip}>
+                Created and Developed by: Jubelle Franze with Claude
               </Text>
-            </TouchableOpacity>
-
-            <Text style={styles.tip}>
-              💡 Tip: Use "admin@game.com" as email to create an admin account
-            </Text>
-          </View>
-        </ScrollView>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     );
   }
 
-  // Admin Panel
-  if (screen === 'admin') {
-    if (allUsers.length === 0) loadUsers();
-    
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <ScrollView>
-          <View style={styles.adminHeader}>
-            <View>
-              <Text style={styles.adminTitle}>Admin Dashboard</Text>
-              <Text style={styles.adminSubtitle}>Welcome, {user.username}</Text>
-            </View>
+// Admin Panel
+if (screen === 'admin') {
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <ScrollView>
+
+        <View style={styles.adminHeader}>
+          <View>
+            <Text style={styles.adminTitle}>Admin Dashboard</Text>
+            <Text style={styles.adminSubtitle}>Welcome, {user.username}</Text>
+          </View>
+
+          <View style={styles.headerButtons}>
+            <TouchableOpacity 
+              style={styles.playButton}
+              onPress={() => setScreen('menu')}
+            >
+              <Gamepad2 color="#fff" size={20} />
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
               <LogOut color="#fff" size={20} />
             </TouchableOpacity>
           </View>
+        </View>
 
-          <View style={styles.userListContainer}>
-            <View style={styles.sectionHeader}>
-              <Users color="#fff" size={24} />
-              <Text style={styles.sectionTitle}>Player Management</Text>
-            </View>
+        <View style={styles.userListContainer}>
+          <View style={styles.sectionHeader}>
+            <Users color="#fff" size={24} />
+            <Text style={styles.sectionTitle}>Player Management</Text>
+          </View>
 
-            {allUsers.map(u => (
-              <View key={u.id} style={styles.userCard}>
-                <View style={styles.userInfo}>
-                  <View style={styles.userHeader}>
-                    <Text style={styles.userName}>{u.username}</Text>
-                    <View style={[styles.badge, u.role === 'admin' ? styles.badgeAdmin : styles.badgePlayer]}>
-                      <Text style={styles.badgeText}>{u.role}</Text>
-                    </View>
-                    <View style={[styles.badge, u.status === 'active' ? styles.badgeActive : styles.badgeInactive]}>
-                      <Text style={styles.badgeText}>{u.status}</Text>
-                    </View>
+          {allUsers.map(u => (
+            <View key={u.id} style={styles.userCard}>
+
+              <View style={styles.userInfo}>
+                <View style={styles.userHeader}>
+                  <Text style={styles.userName}>{u.username}</Text>
+
+                  <View style={[styles.badge, u.role === 'admin' ? styles.badgeAdmin : styles.badgePlayer]}>
+                    <Text style={styles.badgeText}>{u.role}</Text>
                   </View>
-                  <Text style={styles.userEmail}>{u.email}</Text>
-                  <View style={styles.statsRow}>
-                    <Text style={styles.statText}>🏆 {u.stats.wins} wins</Text>
-                    <Text style={styles.statText}>⚔️ {u.stats.totalDamage} dmg</Text>
-                    <Text style={styles.statText}>🎮 {u.stats.gamesPlayed} games</Text>
+
+                  <View style={[styles.badge, u.status === 'active' ? styles.badgeActive : styles.badgeInactive]}>
+                    <Text style={styles.badgeText}>{u.status}</Text>
                   </View>
                 </View>
-                
-                {u.role !== 'admin' && (
-                  <View style={styles.actionButtons}>
-                    {u.status === 'active' ? (
-                      <TouchableOpacity
-                        style={[styles.actionButton, styles.disableButton]}
-                        onPress={() => handleUserAction(u.id, 'disabled', u.username)}
-                      >
-                        <Ban color="#fff" size={16} />
-                        <Text style={styles.actionButtonText}>Disable</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity
-                        style={[styles.actionButton, styles.enableButton]}
-                        onPress={() => handleUserAction(u.id, 'active', u.username)}
-                      >
-                        <CheckCircle color="#fff" size={16} />
-                        <Text style={styles.actionButtonText}>Enable</Text>
-                      </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.deleteButton]}
-                      onPress={() => handleUserAction(u.id, 'deleted', u.username)}
-                    >
-                      <Trash2 color="#fff" size={16} />
-                      <Text style={styles.actionButtonText}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
 
-  // Character Selection
+                <Text style={styles.userEmail}>{u.email}</Text>
+
+                <View style={styles.statsRow}>
+                  <Text style={styles.statText}>🏆 {u.stats.wins} wins</Text>
+                  <Text style={styles.statText}>⚔️ {u.stats.totalDamage} dmg</Text>
+                  <Text style={styles.statText}>🎮 {u.stats.gamesPlayed} games</Text>
+                </View>
+              </View>
+
+              {u.role !== 'admin' && (
+                <View style={styles.actionButtons}>
+                  {u.status === 'active' ? (
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.disableButton]}
+                      onPress={() => handleUserAction(u.id, 'disabled', u.username)}>
+                      <Ban color="#fff" size={16} />
+                      <Text style={styles.actionButtonText}>Disable</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.enableButton]}
+                      onPress={() => handleUserAction(u.id, 'active', u.username)}>
+                      <CheckCircle color="#fff" size={16} />
+                      <Text style={styles.actionButtonText}>Enable</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.deleteButton]}
+                    onPress={() => handleUserAction(u.id, 'deleted', u.username)}>
+                    <Trash2 color="#fff" size={16} />
+                    <Text style={styles.actionButtonText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+  // Character Selection / Main Menu
   if (screen === 'menu') {
     return (
       <SafeAreaView style={styles.container}>
@@ -405,10 +462,25 @@ export default function TowerDefenseGame() {
             <View>
               <Text style={styles.menuTitle}>Welcome, {user.username}!</Text>
               <Text style={styles.menuSubtitle}>Choose your character</Text>
+              {user.role === 'admin' && (
+                <View style={styles.adminBadgeContainer}>
+                  <Text style={styles.adminBadgeText}>👑 Admin Account</Text>
+                </View>
+              )}
             </View>
-            <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-              <LogOut color="#fff" size={20} />
-            </TouchableOpacity>
+            <View style={styles.headerButtons}>
+              {user.role === 'admin' && (
+                <TouchableOpacity 
+                  style={styles.adminButton} 
+                  onPress={() => setScreen('admin')}
+                >
+                  <Settings color="#fff" size={20} />
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+                <LogOut color="#fff" size={20} />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.characterGrid}>
@@ -515,6 +587,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1e1b4b',
   },
+  keyboardView: {
+    flex: 1,
+  },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -574,6 +649,26 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
   },
+  passwordContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 10,
+    marginBottom: 15,
+    paddingRight: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 15,
+    color: '#fff',
+    fontSize: 16,
+  },
+  eyeButton: {
+    padding: 8,
+  },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -584,10 +679,12 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 15,
     gap: 10,
+    width: '100%',
   },
   errorText: {
     color: '#fca5a5',
     fontSize: 14,
+    flex: 1,
   },
   authButton: {
     width: '100%',
@@ -625,6 +722,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#d1d5db',
     marginTop: 5,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  playButton: {
+    backgroundColor: '#22c55e',
+    padding: 12,
+    borderRadius: 10,
+  },
+  adminButton: {
+    backgroundColor: '#a855f7',
+    padding: 12,
+    borderRadius: 10,
   },
   signOutButton: {
     backgroundColor: '#ef4444',
@@ -696,6 +807,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     gap: 15,
+    flexWrap: 'wrap',
   },
   statText: {
     color: '#d1d5db',
@@ -745,6 +857,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#d1d5db',
     marginTop: 5,
+  },
+  adminBadgeContainer: {
+    marginTop: 8,
+  },
+  adminBadgeText: {
+    color: '#fbbf24',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   characterGrid: {
     flexDirection: 'row',
